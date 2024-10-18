@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import Question from './Question';
 import Results from './Results';
@@ -8,13 +8,15 @@ export default function Quiz() {
     const [activeQuestionIndx, setActiveQuestionIndx] = useState(0);
     const [userAnswers, setUserAnswers] = useState([]);
 
-    function handleAnswerSelect(userAnswer) {
-        setUserAnswers(prevAnswers => {
-            return [...prevAnswers, userAnswer];
-        })
+    const handleAnswerSelect = useCallback(() => {
+        function handleAnswerSelect(userAnswer) {
+            setUserAnswers(prevAnswers => {
+                return [...prevAnswers, userAnswer];
+            })
 
-        setActiveQuestionIndx(prevIndx => prevIndx + 1);
-    }
+            setActiveQuestionIndx(prevIndx => prevIndx + 1);
+        }
+    }, []);
 
     const isCompleted = activeQuestionIndx === QUESTIONS.length;
     if (isCompleted) {
@@ -25,7 +27,7 @@ export default function Quiz() {
 
     return (
         <div id="quiz">
-            <Question key={activeQuestionIndx} question={QUESTIONS[activeQuestionIndx]} handleAnswerSelect={handleAnswerSelect}/>
+            <Question key={activeQuestionIndx} activeIndx={activeQuestionIndx} question={QUESTIONS[activeQuestionIndx]} handleAnswerSelect={handleAnswerSelect}/>
         </div>
     )
 }
