@@ -1,33 +1,38 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-import Question from './Question';
-import Results from './Results';
+import Results from "./Results.jsx";
+import Question from "./Question.jsx";
 import QUESTIONS from "../questions.js";
 
 export default function Quiz() {
-    const [activeQuestionIndx, setActiveQuestionIndx] = useState(0);
-    const [userAnswers, setUserAnswers] = useState([]);
+  const [userAnswers, setUserAnswers] = useState([]);
 
-    const handleAnswerSelect = useCallback(() => {
-        function handleAnswerSelect(userAnswer) {
-            setUserAnswers(prevAnswers => {
-                return [...prevAnswers, userAnswer];
-            })
+  const activeQuestionIndx = userAnswers.length;
+  const isCompleted = activeQuestionIndx === QUESTIONS.length;
 
-            setActiveQuestionIndx(prevIndx => prevIndx + 1);
-        }
-    }, []);
+  const handleAnswerSelect = useCallback((selectedUserAnswer) => {
+    setUserAnswers((prevAnswers) => {
+      return [...prevAnswers, selectedUserAnswer];
+    });
+  }, []);
 
-    const isCompleted = activeQuestionIndx === QUESTIONS.length;
-    if (isCompleted) {
-        return (
-            <Results userAnswers={userAnswers} />
-        )
-    }
+  const handleSkipAnswerByTimeout = useCallback(
+    () => handleAnswerSelect(null),
+    [handleAnswerSelect]
+  );
 
-    return (
-        <div id="quiz">
-            <Question key={activeQuestionIndx} activeIndx={activeQuestionIndx} question={QUESTIONS[activeQuestionIndx]} handleAnswerSelect={handleAnswerSelect}/>
-        </div>
-    )
+  if (isCompleted) {
+    return <Results userAnswers={userAnswers} />;
+  }
+
+  return (
+    <div id="quiz">
+      <Question
+        key={activeQuestionIndx}
+        activeQuestionIndx={activeQuestionIndx}
+        onTimeout={handleSkipAnswerByTimeout}
+        onAnswerSelect={handleAnswerSelect}
+      />
+    </div>
+  );
 }

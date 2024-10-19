@@ -1,17 +1,47 @@
-import { useState } from 'react';
+import { useRef } from "react";
 
-export default function Answers({answers, handleAnswerSelect}) {
-    const shuffledAnswers = answers.sort(() => 0.5 - Math.random());
+export default function Answers({
+  answers,
+  answerResult,
+  selectedAnswer,
+  onAnswerSelect,
+}) {
+  let shuffledAnswers = useRef();
+  if (!shuffledAnswers.current) {
+    shuffledAnswers.current = [...answers];
+    shuffledAnswers.current = shuffledAnswers.current.sort(
+      () => 0.5 - Math.random()
+    );
+  }
 
-    return (
-        <ul id="answers">
-            {shuffledAnswers.map(answer => {
-                return (
-                    <li key={answer} className="answer">
-                        <button onClick={() => handleAnswerSelect(answer)}>{answer}</button>
-                    </li>
-                )
-            })}
-        </ul>
-    )
+  return (
+    <ul id="answers">
+      {shuffledAnswers.current.map((answer) => {
+        const isCurrentAnswerSelected = selectedAnswer === answer;
+        let cssClasses = "";
+
+        if (answerResult === "answered" && isCurrentAnswerSelected) {
+          cssClasses = "selected";
+        }
+
+        if (
+          (answerResult === "correct" || answerResult === "wrong") &&
+          isCurrentAnswerSelected
+        ) {
+          cssClasses = answerResult;
+        }
+
+        return (
+          <li key={answer} className="answer">
+            <button
+              className={cssClasses}
+              onClick={() => onAnswerSelect(answer)}
+              disabled={answerResult !== ""}>
+              {answer}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
